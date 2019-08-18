@@ -1,12 +1,11 @@
-package com.example.annotationdemo;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.annotationdemo.activity;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.annotationdemo.annotation.BindClick;
 import com.example.annotationdemo.annotation.BindId;
@@ -14,26 +13,22 @@ import com.example.annotationdemo.annotation.BindView;
 
 import java.lang.reflect.Field;
 
-@BindClick(ids={R.id.btn_hello1, R.id.btnHello2})
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-    @BindId(id=R.id.btn_hello1)
-    Button btnHello1;
-
-    @BindView
-    Button btnHello2;
-
+public abstract class BaseActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(getLayoutId());
+
         parseBindView();
         parseBindId();
         parseBindClick();
-        btnHello1.setText("@BindId示例（需要指定Id）");
-        btnHello2.setText("@BindView示例（不需要指定Id）");
+
+        initView();
     }
+
+    abstract int getLayoutId();
+    abstract void initView();
 
     /**
      * 绑定view（代码中控件的变量名就是布局文件中该控件的id名）
@@ -41,12 +36,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void parseBindView() {
         Class<?> clazz = this.getClass();
         Field[] fields =clazz.getDeclaredFields();
-        /* 解析父类的注解
+
+        //解析父类的注解
         while (!clazz.getName().equals("androidx.appcompat.app.AppCompatActivity")) {
             clazz = clazz.getSuperclass();
             fields = concat(fields, clazz.getDeclaredFields());
         }
-        */
 
         if (fields == null) {
             return;
@@ -76,12 +71,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void parseBindId() {
         Class<?> clazz = this.getClass();
         Field[] fields =clazz.getDeclaredFields();
-        /* 解析父类的注解
+
+        //解析父类的注解
         while (!clazz.getName().equals("androidx.appcompat.app.AppCompatActivity")) {
             clazz = clazz.getSuperclass();
             fields = concat(fields, clazz.getDeclaredFields());
         }
-        */
 
         if (fields == null) {
             return;
@@ -119,18 +114,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int id : ids) {
                 findViewById(id).setOnClickListener(this);
             }
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_hello1:
-                Toast.makeText(this, "点击了按钮1", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.btnHello2:
-                Toast.makeText(this, "点击了按钮2", Toast.LENGTH_SHORT).show();
-                break;
         }
     }
 }
